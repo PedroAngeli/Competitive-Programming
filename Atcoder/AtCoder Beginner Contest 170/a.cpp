@@ -1,0 +1,20 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define endl '\n'
+
+int main(){
+
+  ios_base :: sync_with_stdio(false);
+  cin.tie(NULL);
+
+  for(int i=1;i<=5;i++){
+    int x;
+    cin >> x;
+    if(x == 0)
+      cout << i << endl;
+  }
+
+  return 0;
+}

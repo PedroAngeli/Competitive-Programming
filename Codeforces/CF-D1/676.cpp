@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define endl '\n'
+#define f first
+#define s second
+#define ub  upper_bound
+#define lb  lower_bound
+#define pb push_back
+#define all(c) (c).begin(), (c).end()
+#define sz(x) (int)(x).size()
+#define fastio ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define debug(...) cout << " [" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] " << endl
+
+using ld = long double;
+using ll = long long;
+using pii = pair <int,int>;
+using pll = pair <ll,ll>;
+using vi = vector <int>;
+using vll = vector <ll>;
+using vpii = vector <pii>;
+using vpll = vector<pll>;
+using vs = vector <string>;
+
+string a;
+int n,k;
+
+bool can(int m){
+  int i = 0;
+  int j = m-1;
+  int ca=0,cb=0;
+
+  for(int l=0;l<=j;l++)
+    ca += (a[l]=='a'),cb += (a[l]=='b');
+
+  if(min(ca,cb) <= k)
+    return true;
+
+  while(j < n){
+    if(a[i]=='a')
+      ca--;
+    else
+      cb--;
+    i++;
+    j++;
+    if(j < n){
+      if(a[j] == 'a')
+        ca++;
+      else
+        cb++;
+    }else
+      break;
+    
+    if(min(ca,cb) <= k)
+    return true;
+  }
+
+  return false;
+}
+
+int main(){
+  fastio;
+
+  cin >> n >> k;
+  cin >> a;
+
+  int l = 1;
+  int r = n;
+
+  int ans = 1;
+
+  while(l <= r){
+    int m = (l+r)/2;
+    if(can(m))
+      ans = m,l = m+1;
+    else
+      r = m-1;
+  }
+
+  cout << ans << endl;
+  
+
+  return 0;
+}

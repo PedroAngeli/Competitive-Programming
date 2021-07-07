@@ -1,130 +1,126 @@
 #include <bits/stdc++.h>
-
+ 
 using namespace std;
+ 
+#define endl '\n'
+#define f first
+#define s second
+#define pb push_back
+#define all(c) (c).begin(), (c).end()
+#define sz(x) (int)(x).size()
+#define fastio ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define debug(...) cout << " [" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] " << endl
 
+using ld = long double;
+using ll = long long;
+using pii = pair <int,int>;
+using pll = pair <ll,ll>;
+using vi = vector <int>;
+using vll = vector <ll>;
+using vpii = vector <pii>;
+using vpll = vector<pll>;
+using vs = vector <string>;
+
+const int INF = 1e9 + 7;
+const int nax = 1000;
 int n,m;
-const int nax = 1e3 +5;
-vector <string> mapa;
-bool visitado[nax][nax];
-vector <pair <int,int> > bordas; 
-vector <int> parent;
+vs grid;
+pii parent[nax][nax];
 
 bool valid(int i,int j){
-  return i >= 0 && i < n && j>=0 && j < m && mapa[i][j] != '#' && !visitado[i][j];
+  return i>=0 && i < n && j >=0 && j < m && grid[i][j] != '#';
 }
 
-void printPath(int u){
-  
-  if(parent[u] == -1)
-    return;
+vector <vi> bfs(vpii& sources){
+  vector <vi> dist(n,vi(m,INF));
+  queue <pii> q;
+  for(auto p:sources)
+    dist[p.f][p.s] = 0,q.push(p);
 
-  if(u - parent[u] == 1)
-    cout << "L";
-  if(u - parent[u] == -1)
-    cout << "R";
-  if(u - parent[u] == m)
-    cout << "U";
-  if(u - parent[u] == -m)
-    cout << "D";  
+  vpii mov = {{0,-1},{0,1},{1,0},{-1,0}};
 
-  printPath(parent[u]);
-
-}
-
-bool bfs(int si,int sj){
-  parent = vector<int> (n*m,-1);
-  vector <pair <int,int> > dist;
-  queue <pair <int, int> > q;
-  vector <int> d(n*m);
-  d[si*m + sj] = 0;
-  q.push({si,sj});
-  int xa,ya;
-  bool achou = false;
-  bool acheiA = false;
-
-  while(!q.empty() && !acheiA){
-    int i = q.front().first;
-    int j = q.front().second;
-    visitado[i][j] = true;
-    vector < pair <int,int> > move({{0,-1},{0,1},{1,0},{-1,0}});
+  while(!q.empty()){
+    auto p = q.front();
     q.pop();
-    
-    for(int k=0;k<4;k++){
-      int x = i + move[k].first;
-      int y = j + move[k].second;
+    int x = p.f;
+    int y = p.s;
 
-      if(valid(x,y)){
-        if(mapa[x][y] == 'A'){
-          xa = x;
-          ya = y;
-          dist.push_back({d[(i*m + j)] + 1,0});
-          acheiA = true;
-        }else if(mapa[x][y] == 'M' && !achou){
-          dist.push_back({d[(i*m + j)] + 1,1});
-          achou = true;
-          q.push({x,y});
-        }else if(mapa[x][y] == '.'){
-          q.push({x,y});
-        }
-        parent[(x*m + y)] = i*m + j;
-        d[(x*m + y)] = d[(i*m + j)] + 1; 
+    for(auto k : mov){
+      int i = x + k.f;
+      int j = y + k.s;
+      if(valid(i,j) && dist[i][j] > dist[x][y] + 1){
+        dist[i][j] = dist[x][y] + 1;
+        q.push({i,j});
+        parent[i][j] = {x,y};
       }
-    }    
+    }
   }
 
-  sort(dist.begin(),dist.end());
 
-  if(dist[0].second == 0){
-    cout << "YES" << endl;
-    cout << dist[0].first << endl;
-    printPath(xa*m + ya);
-    cout << endl;
+  return dist;
+}
 
-    return true;
+void printPath(int i,int j){
+  string ans;
+  while(true){
+    auto p = parent[i][j];
+    if(p.f == -1)
+      break;
+    if(p.s < j)
+      ans += "R";
+    if(p.s > j)
+      ans += "L";
+     if(p.f > i)
+      ans += "U";
+    if(p.f < i)
+      ans += "D";
+    i = p.f;
+    j = p.s;
   }
 
-  return false;
+  reverse(all(ans));
+  cout << sz(ans) << endl;
+  cout << ans << endl;
 }
 
 int main(){
-
-  cin >> n >> m;
-  mapa.resize(n);
-  scanf("%*c");
-
-  for(int i=0;i<n;i++){
-    mapa[i].resize(m);
-    for(int j=0;j<m;j++){
-      scanf("%c",&mapa[i][j]);
-
-      if((i == 0 || j == 0 || j == m-1 || i == n-1) && mapa[i][j]=='.'){
-        bordas.push_back({i,j});
-      }
-    }
+  fastio;
   
-    scanf("%*c");
-  }
+  cin >> n >> m;
+  grid.resize(n);
 
-  bool ans = false;
+  for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+      parent[i][j] = {-1,-1};
 
+  for(int i=0;i<n;i++)
+    cin >> grid[i];
+  
+  vpii monsters;
+  vpii man;
 
-  for(int i=0;i<bordas.size();i++){
-    
-    memset(visitado,false,sizeof(bool)*nax*nax);
-    ans = bfs(bordas[i].first,bordas[i].second);
+  for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+      if(grid[i][j] == 'M')
+        monsters.pb({i,j});
+      else if(grid[i][j] == 'A')
+        man.pb({i,j});
+  
+  auto distMonsters = bfs(monsters);
+  for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+      parent[i][j] = {-1,-1};
+  auto distMan = bfs(man);
 
-    if(ans)
-      break;
-  } 
-
-  if(n*m == 1){
-    cout << "YES" << endl;
-    cout << 0 << endl;
-    return 0;
-  }
-
-  if(!ans)
-    cout << "NO" << endl;
-
+  for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+      if(i == 0 || j == 0 || i == n-1 || j == m-1){
+        if(distMonsters[i][j] > distMan[i][j]){
+          cout << "YES" << endl;
+          printPath(i,j);
+          return 0;
+        }
+      } 
+  cout << "NO" << endl;
   return 0;
 }
